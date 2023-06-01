@@ -1,5 +1,4 @@
 #%%
-
 from dariusVision import lastest_Cam2,get_version,rs2_AsyncCam
 import cv2 as cv
 
