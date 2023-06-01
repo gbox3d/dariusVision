@@ -9,16 +9,15 @@ import numpy as np
 
 #%%
 class rs2_AsyncCam : 
-    def __init__(self,vid_src=0,grab_delay=0.1,width=640,height=480) :
+    def __init__(self,vid_src=0,grab_delay=0.1) :
         self.frame_status = False
         self.running = False
         self.depth_frame = None
         self.color_frame = None
         self.grab_delay = grab_delay
-        self.width = width
-        self.height = height
         self.pipeline = None
         self._critical_Section = None 
+        self.video_source = vid_src
             
     def startCamera(self) :
         
@@ -32,7 +31,8 @@ class rs2_AsyncCam :
         for dev in devices:
             print(dev.get_info(rs.camera_info.name))
 
-        self.camera_model = devices[0].get_info(rs.camera_info.name)
+        self.camera_name = devices[self.video_source].get_info(rs.camera_info.name).split(' ')[-1]
+        
         
         if self.pipeline is None :
             pipeline = rs.pipeline()
@@ -52,13 +52,23 @@ class rs2_AsyncCam :
             if not found_rgb:
                 print("The demo requires Depth camera with Color sensor")
                 exit(0)
-
-            config.enable_stream(rs.stream.depth, self.width, self.height, rs.format.z16, 30)
-
-            if device_product_line == 'L500':
+                
+            if (self.camera_name == 'L515'):
+                config.enable_stream(rs.stream.depth, 1024, 768, rs.format.z16, 30)
                 config.enable_stream(rs.stream.color, 960, 540, rs.format.bgr8, 30)
-            else:
+            elif (self.camera_name == 'D435'):
+                config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+                config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)                
+            else :
+                config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
                 config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+
+
+            # if device_product_line == 'L500':
+            #     config.enable_stream(rs.stream.color, 960, 540, rs.format.bgr8, 30)
+            # else:
+            #     config.enable_stream(rs.stream.depth, 640,480, rs.format.z16, 30)
+            #     config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
 
             print("device_product_line: ", device_product_line)
             print("found_rgb: ", found_rgb)
