@@ -117,6 +117,7 @@ class rs2_AsyncCam :
                   
     def stopCamera(self) :
         self.running = False
+        self.frame_status = False
         
     def isOpened(self):
         
@@ -147,7 +148,6 @@ class rs2_AsyncCam :
     def getFrame(self) :
         
         if self._critical_Section is not None :
-        
             with self._critical_Section : 
                 if self.frame_status :
                     return True, self.depth_frame, self.color_frame
@@ -164,64 +164,72 @@ class rs2_AsyncCam :
             return True, np.asanyarray(self.color_frame.get_data())
     def getDepthFrame(self) :
         return True,self.depth_frame    
+    
+    def _getPoint3d(self, x, y) :
+        if self.frame_status :
+            depth = self.depth_frame.get_distance(x, y)
+            # 2D 이미지 좌표를 3D 좌표계로 변환
+            point = rs.rs2_deproject_pixel_to_point(self.depth_intrinsics, [x, y], depth)
+            
+            # 픽셀에 해당하는 컬러 이미지의 RGB 값을 가져옴
+            # color = self.color_frame.get_data()[y, x]
+            color = np.asarray(self.color_frame.get_data())[y, x]
+            return (point,(color[0],color[1],color[2]))
+            # return point,color
+        else :
+            return None
+    
     def getPoint3d(self, x, y) :
         if self._critical_Section is not None :
             with self._critical_Section : 
-                if self.frame_status :
-                    depth = self.depth_frame.get_distance(x, y)
-                    # 2D 이미지 좌표를 3D 좌표계로 변환
-                    point = rs.rs2_deproject_pixel_to_point(self.depth_intrinsics, [x, y], depth)
+                return self._getPoint3d(x, y)
+        else :
+            return self._getPoint3d(x, y)
+    
+    def _getPointCloud(self, x1, y1, x2, y2, diff_x, diff_y):
+        if self.frame_status :
+            # Get the depth and color frames
+            depth_frame = self.depth_frame
+            color_frame = self.color_frame
+
+            # Get the intrinsics of the camera
+            intrinsics = self.depth_intrinsics
+
+            points_list = []
+            colors_list = []
+
+            # Loop through the pixels and convert to point cloud coordinates
+            for y in range(y1, y2):
+                for x in range(x1, x2):
+                    _x = x - diff_x;
+                    _y = y - diff_y;
                     
-                    # 픽셀에 해당하는 컬러 이미지의 RGB 값을 가져옴
-                    # color = self.color_frame.get_data()[y, x]
-                    color = np.asarray(self.color_frame.get_data())[y, x]
-                    return (point,(color[0],color[1],color[2]))
-                    # return point,color
-                else :
-                    return None
+                    if _x < 0 or _y < 0 or _x >= self.width or _y >= self.height :
+                        depth = 0
+                    else :
+                        depth = depth_frame.get_distance(_x, _y)
+                        
+                    point = rs.rs2_deproject_pixel_to_point(intrinsics, [x, y], depth)
+                    color = np.asarray(color_frame.get_data())[y, x]
+
+                    # Append point and color data to lists
+                    points_list.append(point)
+                    colors_list.append(color)
+
+            # Convert lists to numpy arrays
+            points = np.array(points_list)
+            colors = np.array(colors_list)
+            
+            return (points, colors)
         else :
             return None
+      
     def getPointCloud(self, x1, y1, x2, y2,diff_x=0,diff_y=0):
         if self._critical_Section is not None :
             with self._critical_Section :
-                if self.frame_status :
-                    # Get the depth and color frames
-                    depth_frame = self.depth_frame
-                    color_frame = self.color_frame
-
-                    # Get the intrinsics of the camera
-                    intrinsics = self.depth_intrinsics
-
-                    points_list = []
-                    colors_list = []
-
-                    # Loop through the pixels and convert to point cloud coordinates
-                    for y in range(y1, y2):
-                        for x in range(x1, x2):
-                            _x = x - diff_x;
-                            _y = y - diff_y;
-                            
-                            if _x < 0 or _y < 0 or _x >= self.width or _y >= self.height :
-                                depth = 0
-                            else :
-                                depth = depth_frame.get_distance(_x, _y)
-                                
-                            point = rs.rs2_deproject_pixel_to_point(intrinsics, [x, y], depth)
-                            color = np.asarray(color_frame.get_data())[y, x]
-
-                            # Append point and color data to lists
-                            points_list.append(point)
-                            colors_list.append(color)
-
-                    # Convert lists to numpy arrays
-                    points = np.array(points_list)
-                    colors = np.array(colors_list)
-                    
-                    return (points, colors)
-                else :
-                    return None
+                return self._getPointCloud(x1, y1, x2, y2,diff_x,diff_y)
         else :
-            return None
+            return self._getPointCloud(x1, y1, x2, y2,diff_x,diff_y)
 
 #%%
 if __name__ == '__main__' :
