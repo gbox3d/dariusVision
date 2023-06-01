@@ -10,7 +10,7 @@ def getVersion():
 
 def getCameraClass(type='rs2'):
     if type=='rs2':
-        from .cam import rs2_AsyncCam 
+        from .realsense2 import rs2_AsyncCam 
         return rs2_AsyncCam
     elif type=='cv':
         from .cam import lastest_Cam2

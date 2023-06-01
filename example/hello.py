@@ -1,5 +1,8 @@
 #%%
+import os
+os.chdir("../")
+
 import dariusVision
 
-print(dariusVision.get_version())
+print(dariusVision.getVersion())
 # %%

@@ -5,7 +5,6 @@ from PIL import Image
 from IPython.display import display
 
 import os
-
 os.chdir("../")
 
 #%%
@@ -13,11 +12,11 @@ from dariusVision import getCameraClass,getVersion
 
 print(getVersion())
 
-#%%
+#%% generic cv camera
 lcam = getCameraClass(type='cv')(vid_src=0)
-# %%
-from dariusVision import rs2_AsyncCam
-lcam = rs2_AsyncCam()
+# %% realsense camera
+lcam = getCameraClass(type='rs2')(vid_src=0)
+
 
 # %%
 lcam.startCamera()

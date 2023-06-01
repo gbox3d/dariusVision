@@ -31,9 +31,9 @@ class rs2_AsyncCam :
         for dev in devices:
             print(dev.get_info(rs.camera_info.name))
 
-        self.camera_name = devices[self.video_source].get_info(rs.camera_info.name).split(' ')[-1]
-        
-        
+        self.camera_model = devices[self.video_source].get_info(rs.camera_info.name)
+        self.camera_name = self.camera_model.split(' ')[-1]
+                
         if self.pipeline is None :
             pipeline = rs.pipeline()
             config = rs.config()
