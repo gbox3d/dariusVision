@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='dariusVision',
-    version='0.0.3',
+    version='0.0.5',
     description='camera utilities to get last frame',
     long_description='camera utilities to get last frame',
     packages=['dariusVision'],

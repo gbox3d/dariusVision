@@ -160,7 +160,8 @@ class rs2_AsyncCam :
         if self._critical_Section is not None :
             with self._critical_Section : 
                 if self.frame_status :
-                    return True, self.depth_frame, self.color_frame
+                    #return True, self.depth_frame, self.color_frame
+                    return True,np.asanyarray(self.depth_frame.get_data()), np.asanyarray(self.color_frame.get_data())
                 else :
                     return False, None, None
         else :
@@ -170,8 +171,8 @@ class rs2_AsyncCam :
             self.depth_frame = aligned_frames.get_depth_frame()
             self.color_frame = aligned_frames.get_color_frame()
             self.frame_status = True # frame is ready
-            
-            return True, np.asanyarray(self.color_frame.get_data())
+            return True,np.asanyarray(self.depth_frame.get_data()), np.asanyarray(self.color_frame.get_data())
+        
     def getDepthFrame(self) :
         return True,self.depth_frame    
     

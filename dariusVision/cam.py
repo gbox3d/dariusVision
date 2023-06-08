@@ -57,9 +57,9 @@ class lastest_Cam2 :
         
     def getFrame(self) :
         if self.running == True :
-            return self.read()
+            return self.running,None,self.read()
         else :
-            return self.cap.read()
+            return self.running,None,self.cap.read()
         
     def startCamera(self) :
         self.cap = cv.VideoCapture(self.vid_src)
