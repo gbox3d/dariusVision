@@ -22,7 +22,7 @@ lcam = getCameraClass(type='rs2')(vid_src=0)
 lcam.startCamera()
 
 #%%
-_,frame = lcam.getFrame()
+_,_,frame = lcam.getFrame()
 display(Image.fromarray( cv.cvtColor(frame,cv.COLOR_BGR2RGB) ))
 # %%
 lcam.stopCamera()
