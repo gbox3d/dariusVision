@@ -14,12 +14,13 @@ print(getVersion())
 
 #%% generic cv camera
 lcam = getCameraClass(type='cv')(vid_src=0)
+lcam.startCamera()
+lcam.doLastFrame()
 # %% realsense camera
 lcam = getCameraClass(type='rs2')(vid_src=0)
-
-
-# %%
 lcam.startCamera()
+# %%
+
 
 #%%
 _,_,frame = lcam.getFrame()

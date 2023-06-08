@@ -53,11 +53,12 @@ class lastest_Cam2 :
 
     def read(self) :
         with self._critical_Section :
-            return (self.frame_status,self.frame.copy())
+            return self.frame_status,self.frame.copy()
         
     def getFrame(self) :
         if self.running == True :
-            return self.running,None,self.read()
+            status,frame = self.read()
+            return status,None,frame
         else :
             return self.running,None,self.cap.read()
         
