@@ -173,8 +173,10 @@ class rs2_AsyncCam :
             self.frame_status = True # frame is ready
             return True,np.asanyarray(self.depth_frame.get_data()), np.asanyarray(self.color_frame.get_data())
         
-    def getDepthFrame(self) :
-        return True,self.depth_frame    
+    def getDepthBuffer(self) :
+        frames = self.pipeline.wait_for_frames()
+        return frames.get_depth_frame()
+        
     
     def _getPoint3d(self, x, y) :
         if self.frame_status :
