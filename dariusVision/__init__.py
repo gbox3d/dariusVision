@@ -3,7 +3,7 @@
 # from .realsense2 import rs2_AsyncCam
 from .utils import *
 
-version='0.0.6'
+version='0.0.7'
 
 def getVersion():
     return version
